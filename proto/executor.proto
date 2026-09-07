@@ -180,6 +180,10 @@ message FTSQueryInfo {
 	// This option is not supported for QueryType == NoScore.
 	optional uint32 top_k = 10;
 
+	// These fields support pushdown for order-by and limit scenarios.
+	repeated int64 sort_column_ids = 11;
+	repeated bool sort_column_asc = 12;
+
 	// Distinguish match_word, match_expression, match_prefix, match_regexp
 	optional ScalarFuncSig query_func = 20 [(gogoproto.nullable) = false];
 
