@@ -139,6 +139,35 @@ message ANNQueryInfo {
 	optional uint32 hnsw_ef_search = 20 [(gogoproto.nullable) = false]; // Only for HNSW indexes
 }
 
+enum FTSQueryType {
+	FTSQueryTypeInvalid = 0;
+	FTSQueryTypeNoScore = 1;
+	FTSQueryTypeWithScore = 2;
+}
+
+message FTSQueryInfo {
+	optional FTSQueryType query_type = 1 [(gogoproto.nullable) = false];
+	optional int64 index_id = 2 [(gogoproto.nullable) = false];
+	repeated ColumnInfo columns = 3;
+	repeated string column_names = 4;
+	optional string query_text = 5 [(gogoproto.nullable) = false];
+	optional string query_tokenizer = 6 [(gogoproto.nullable) = false];
+	optional uint32 top_k = 10;
+	optional ScalarFuncSig query_func = 20 [(gogoproto.nullable) = false];
+}
+
+enum ColumnarIndexType {
+	TypeInvalid = 0;
+	TypeFulltext = 3;
+}
+
+message ColumnarIndexInfo {
+	optional ColumnarIndexType index_type = 1 [(gogoproto.nullable) = false];
+	oneof index {
+		FTSQueryInfo fts_query_info = 4;
+	}
+}
+
 message TableScan {
 	optional int64 table_id = 1 [(gogoproto.nullable) = false];
 	repeated ColumnInfo columns = 2;
@@ -153,6 +182,7 @@ message TableScan {
 	optional ANNQueryInfo ann_query = 13; // only used by TiFlash
 	repeated RuntimeFilter runtime_filter_list = 11; // only used by TiFlash
 	optional int32 max_wait_time_ms = 12  [(gogoproto.nullable) = false];
+	repeated ColumnarIndexInfo used_columnar_indexes = 14; // only used by TiFlash
 }
 
 message PartitionTableScan {
@@ -167,6 +197,7 @@ message PartitionTableScan {
 	optional ANNQueryInfo ann_query = 11; // only used by TiFlash
 	repeated RuntimeFilter runtime_filter_list = 9; // only used by TiFlash
         optional int32 max_wait_time_ms = 10  [(gogoproto.nullable) = false];
+	repeated ColumnarIndexInfo used_columnar_indexes = 12; // only used by TiFlash
 }
 
 enum JoinType {
@@ -458,4 +489,3 @@ message Expand2{
 	repeated string generated_output_names = 2;  // for output names for generated cols like grouping_id etc, like "gen_col1", "gen_col2" here
 	optional Executor child = 3;
 }
-
