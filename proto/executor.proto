@@ -190,6 +190,10 @@ message FTSBooleanTerm {
 
 message FTSBooleanQuery {
 	repeated FTSBooleanNode nodes = 1;
+	// The Boolean query carries the analyzer selected by the FULLTEXT index so
+	// TiFlash does not have to infer NGRAM semantics from the raw query text.
+	optional string query_tokenizer = 2 [(gogoproto.nullable) = false];
+	optional uint32 ngram_token_size = 3 [(gogoproto.nullable) = false];
 }
 
 message FTSBooleanNode {
